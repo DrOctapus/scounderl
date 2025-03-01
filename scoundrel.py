@@ -2,21 +2,6 @@ import random
 
 # random.seed("demo")
 
-health = 20
-weapon = 0
-fights = []
-room = []
-run = 0
-use_potion = False
-weapons = [str(i) + "W" for i in range(2, 11)]
-pots = [str(i) + "H" for i in range(2, 11)]
-monsters = [str(i) + "M" for i in range(2, 15)]
-monsters += [str(i) + "M" for i in range(2, 15)]
-
-dungeon = weapons + pots + monsters
-
-random.shuffle(dungeon)
-
 RESET = "\033[0m"
 GRAY = "\033[90m"
 RED = "\033[91m"
@@ -36,25 +21,55 @@ def color_card(card):
     return card
 
 
+def show(case, a="", b="", c="", d=""):
+    if case == 1:
+        print(f"{GRAY}------------- Deck: {CYAN}{a}{GRAY} -------------{RESET}")
+    elif case == 2:
+        print("\n" + " ".join(color_card(card) for card in a))
+        print(f"{YELLOW}Health:{RESET} {CYAN}{b}{RESET} | {YELLOW}Weapon:{RESET} {CYAN}{c}{RESET} {GRAY}{d}{RESET}")
+    elif case == 3:
+        print(f"{YELLOW}Choose R to run{RESET}")
+    elif case == 4:
+        print(f"\n{GRAY}------------- DEFEAT -------------{RESET}")
+    elif case == 5:
+        print(f"\n{GRAY}------------- VICTORY! You survived! -------------{RESET}")
+
+
+health = 20
+weapon = 0
+fights = []
+room = []
+run = 0
+use_potion = False
+
+
+weapons = [str(i) + "W" for i in range(2, 11)]
+pots = [str(i) + "H" for i in range(2, 11)]
+monsters = [str(i) + "M" for i in range(2, 15)]
+monsters += [str(i) + "M" for i in range(2, 15)]
+
+dungeon = weapons + pots + monsters
+
+random.shuffle(dungeon)
+
+
 while True:
     while len(room) < 4 and len(dungeon) > 0:
-        room.append(dungeon[0])
-        dungeon = dungeon[1:]
+        room.append(dungeon.pop(0))
 
     use_potion = False
 
     if run > 0:
         run -= 1
 
-    print(f"{GRAY}------------- Deck: {CYAN}{len(dungeon)}{GRAY} -------------{RESET}")
+    show(1, len(dungeon))
 
     while len(room) > 1 or len(dungeon) == 0:
-        print("\n" + " ".join(color_card(card) for card in room))
-        print(f"{YELLOW}Health:{RESET} {CYAN}{health}{RESET} | {YELLOW}Weapon:{RESET} {CYAN}{weapon}{RESET} {GRAY}{fights}{RESET}")
+        show(2, room, health, weapon, fights)
 
         while True:
             if len(room) == 4 and run == 0:
-                print(f"{YELLOW}Choose R to run{RESET}")
+                show(3)
             answer = input(f"{YELLOW}Choose card:{RESET} [{CYAN}{'1' if len(room) == 1 else f'1 - {len(room)}'}{RESET}]\n")
             try:
                 if len(room) == 4 and run == 0 and answer.lower() == "r":
@@ -80,7 +95,8 @@ while True:
 
         if "M" in choice:
             if len(fights) == 0 or fights[-1] > value:
-                health += min(weapon - value, 0)
+                if weapon < value:
+                    health -= value - weapon
                 fights.append(value)
             else:
                 health -= value
@@ -98,9 +114,9 @@ while True:
 
         if health <= 0:
             health = 0
-            print(f"\n{GRAY}------------- DEFEAT -------------{RESET}")
+            show(4)
             exit()
 
         if len(room) == 0 and len(dungeon) == 0:
-            print(f"\n{GRAY}------------- VICTORY! You survived! -------------{RESET}")
+            show(5)
             exit()
