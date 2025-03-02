@@ -28,7 +28,7 @@ def show(case, a="", b="", c="", d=""):
         print("\n" + " ".join(color_card(card) for card in a))
         print(f"{YELLOW}Health:{RESET} {CYAN}{b}{RESET} | {YELLOW}Weapon:{RESET} {CYAN}{c}{RESET} {GRAY}{d}{RESET}")
     elif case == 3:
-        print(f"{YELLOW}Choose R to run{RESET}")
+        print(f"{YELLOW}Choose R to run\nPut B after card to fight mosnter bare-handed{RESET}")
     elif case == 4:
         print(f"\n{GRAY}------------- DEFEAT -------------{RESET}")
     elif case == 5:
@@ -58,6 +58,7 @@ while True:
         room.append(dungeon.pop(0))
 
     use_potion = False
+    bearhanded = False
 
     if run > 0:
         run -= 1
@@ -79,6 +80,10 @@ while True:
                     run = 2
                     break
 
+                if "b" in answer.lower():
+                    answer = answer.replace("b", "")
+                    bearhanded = True
+
                 answer = int(answer)
                 if 1 <= answer <= len(room):
                     answer -= 1
@@ -94,7 +99,7 @@ while True:
         value = int(choice[:-1])
 
         if "M" in choice:
-            if len(fights) == 0 or fights[-1] > value:
+            if (len(fights) == 0 or fights[-1] > value) and weapon > 0 and not bearhanded:
                 if weapon < value:
                     health -= value - weapon
                 fights.append(value)
